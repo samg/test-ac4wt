@@ -15,6 +15,7 @@ Resources:
           /foo/bar:
             get:
               x-amazon-apigateway-integration:
+                credentials: !GetAtt ApiExternalFunctionPolicy.Arn
                 httpMethod: POST
                 type: aws_proxy
                 uri: !If
@@ -54,6 +55,27 @@ Resources:
       Type: function
       Data: arn:aws:lambda:us-west-2:741950306968:function:fargate-demo-cloudnativelive-triggerDockerTask
     Condition: FunctionUseExistingResource
+  ApiExternalFunctionPolicy:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: apigateway.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+        - PolicyName: TriggerProductDeployCodeBuild
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource:
+                  - !GetAtt FunctionExistingResource.Arn
+      RoleName: !Sub ${AWS::StackName}-ApiExternalFunctionPolicy
 Parameters:
   StackTagName:
     Type: String
