@@ -1,6 +1,29 @@
 AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
 Resources:
+  Api:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub
+        - ${ResourceName} From Stack ${StackTagName} Environment ${EnvironmentTagName}
+        - ResourceName: Api
+      StageName: !Ref EnvironmentAPIGatewayStageName
+      DefinitionBody:
+        swagger: '2.0'
+        info: {}
+        paths:
+          /foo/bar:
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !If
+                  - FunctionUseExistingResource
+                  - !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FunctionExistingResource.Arn}/invocations
+                  - !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Function.Arn}/invocations
+              responses: {}
+      EndpointConfiguration: REGIONAL
+      TracingEnabled: true
   Function:
     Type: AWS::Serverless::Function
     Properties:
@@ -17,10 +40,10 @@ Resources:
       Policies:
         - AWSXrayWriteOnlyAccess
       Events:
-        ApiGET:
+        ApiGETfoobar:
           Type: Api
           Properties:
-            Path: /
+            Path: /foo/bar
             Method: GET
             RestApiId: !Ref Api
     Condition: FunctionCreateNewResource
@@ -31,26 +54,6 @@ Resources:
       Type: function
       Data: arn:aws:lambda:us-east-1:741950306968:function:sign-up-backend-reinvent2018-dequeueFunction
     Condition: FunctionUseExistingResource
-  Api:
-    Type: AWS::Serverless::Api
-    Properties:
-      Name: !Sub
-        - ${ResourceName} From Stack ${StackTagName} Environment ${EnvironmentTagName}
-        - ResourceName: Api
-      StageName: !Ref EnvironmentAPIGatewayStageName
-      DefinitionBody:
-        swagger: '2.0'
-        info: {}
-        paths:
-          /:
-            get:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Function.Arn}/invocations
-              responses: {}
-      EndpointConfiguration: REGIONAL
-      TracingEnabled: true
 Parameters:
   StackTagName:
     Type: String
