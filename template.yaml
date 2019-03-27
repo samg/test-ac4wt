@@ -56,7 +56,7 @@ Resources:
     Properties:
       ServiceToken: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:stackery-agent-commander
       Type: function
-      Data: arn:aws:lambda:us-west-2:741950306968:function:fargate-demo-cloudnativelive-triggerDockerTask
+      Data: !Ref EnvConfigmyFunctionAsString
     Condition: FunctionUseExistingResource
   ApiExternalFunctionRole:
     Type: AWS::IAM::Role
@@ -89,9 +89,15 @@ Parameters:
   EnvironmentAPIGatewayStageName:
     Type: String
     Description: Environment name used for API Gateway Stage names (injected by Stackery at deployment time)
+  EnvConfigmyFunctionAsString:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /<EnvironmentName>/myFunction
 Conditions:
   FunctionCreateNewResource: !Equals
     - 'false'
-    - 'true'
+    - !Ref EnvConfigmyFunctionAsString
   FunctionUseExistingResource: !Not
     - Condition: FunctionCreateNewResource
+Metadata:
+  EnvConfigParameters:
+    EnvConfigmyFunctionAsString: myFunction
