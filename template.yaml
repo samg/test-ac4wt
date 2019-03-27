@@ -47,6 +47,9 @@ Resources:
             Path: /foo/bar
             Method: GET
             RestApiId: !Ref Api
+      Environment:
+        Variables:
+          API_URL: !Sub https://${Api}.execute-api.${AWS::Region}.amazonaws.com/${Api.Stage}
     Condition: FunctionCreateNewResource
   FunctionExistingResource:
     Type: Custom::StackeryExistingResource
