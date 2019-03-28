@@ -75,7 +75,7 @@ Resources:
       BasePath: basepath
       DomainName: !Ref ApiCustomDomain
       RestApiId: !Ref Api
-      Stage: !GetAtt Api.Stage
+      Stage: !Ref EnvironmentAPIGatewayStageName
 Parameters:
   StackTagName:
     Type: String
