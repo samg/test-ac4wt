@@ -43,6 +43,32 @@ Resources:
             Path: /foo/bar
             Method: GET
             RestApiId: !Ref Api
+  ApiSSLCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: pdx-serverless.dev
+      DomainValidationOptions: !If
+        - ApiCustomDomain
+        - - DomainName: pdx-serverless.dev
+            ValidationDomain: pdx-serverless.dev
+        - !Ref AWS::NoValue
+    Condition: ApiCustomDomain
+  ApiCustomDomain:
+    Type: AWS::ApiGateway::DomainName
+    Properties:
+      DomainName: pdx-serverless.dev
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      RegionalCertificateArn: !Ref ApiSSLCertificate
+    Condition: ApiCustomDomain
+  ApiCustomDomainMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      DomainName: !Ref ApiCustomDomain
+      RestApiId: !Ref Api
+      Stage: !Ref EnvironmentAPIGatewayStageName
+    Condition: ApiCustomDomain
 Parameters:
   StackTagName:
     Type: String
@@ -53,3 +79,8 @@ Parameters:
   EnvironmentAPIGatewayStageName:
     Type: String
     Description: Environment name used for API Gateway Stage names (injected by Stackery at deployment time)
+Conditions:
+  ApiCustomDomain: !Not
+    - !Equals
+      - 'false'
+      - pdx-serverless.dev
