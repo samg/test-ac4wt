@@ -15,7 +15,6 @@ Resources:
           /foo/bar:
             get:
               x-amazon-apigateway-integration:
-                credentials: !GetAtt ApiExternalFunctionRole.Arn
                 httpMethod: POST
                 type: aws_proxy
                 uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Function.Arn}/invocations
@@ -44,27 +43,6 @@ Resources:
             Path: /foo/bar
             Method: GET
             RestApiId: !Ref Api
-  ApiExternalFunctionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          Effect: Allow
-          Principal:
-            Service: apigateway.amazonaws.com
-          Action: sts:AssumeRole
-      Policies:
-        - PolicyName: !Sub ${AWS::StackName}-ApiExternalFunctionPolicy
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - lambda:InvokeFunction
-                Resource:
-                  - !GetAtt FunctionExistingResource.Arn
-      RoleName: !Sub ${AWS::StackName}-ApiExternalFunctionRole
 Parameters:
   StackTagName:
     Type: String
