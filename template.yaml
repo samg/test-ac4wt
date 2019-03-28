@@ -18,10 +18,7 @@ Resources:
                 credentials: !GetAtt ApiExternalFunctionRole.Arn
                 httpMethod: POST
                 type: aws_proxy
-                uri: !If
-                  - FunctionUseExistingResource
-                  - !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FunctionExistingResource.Arn}/invocations
-                  - !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Function.Arn}/invocations
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Function.Arn}/invocations
               responses: {}
       EndpointConfiguration: REGIONAL
       TracingEnabled: true
@@ -47,14 +44,6 @@ Resources:
             Path: /foo/bar
             Method: GET
             RestApiId: !Ref Api
-    Condition: FunctionCreateNewResource
-  FunctionExistingResource:
-    Type: Custom::StackeryExistingResource
-    Properties:
-      ServiceToken: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:stackery-agent-commander
-      Type: function
-      Data: arn:aws:lambda:us-west-2:741950306968:function:fargate-demo-cloudnativelive-triggerDockerTask
-    Condition: FunctionUseExistingResource
   ApiExternalFunctionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -86,9 +75,3 @@ Parameters:
   EnvironmentAPIGatewayStageName:
     Type: String
     Description: Environment name used for API Gateway Stage names (injected by Stackery at deployment time)
-Conditions:
-  FunctionCreateNewResource: !Equals
-    - 'false'
-    - 'true'
-  FunctionUseExistingResource: !Not
-    - Condition: FunctionCreateNewResource
