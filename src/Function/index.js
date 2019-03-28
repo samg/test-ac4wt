@@ -2,7 +2,7 @@ exports.handler = async message => {
   console.log(message);
 
   const response = {
-    statusCode: '204',
+    statusCode: '200',
     headers: {
       'Access-Control-Allow-Origin': '*'
     },
