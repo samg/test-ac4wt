@@ -46,17 +46,17 @@ Resources:
   ApiSSLCertificate:
     Type: AWS::CertificateManager::Certificate
     Properties:
-      DomainName: pdx-serverless.dev
+      DomainName: api.pdx-serverless.dev
       DomainValidationOptions: !If
         - ApiCustomDomain
-        - - DomainName: pdx-serverless.dev
+        - - DomainName: api.pdx-serverless.dev
             ValidationDomain: pdx-serverless.dev
         - !Ref AWS::NoValue
     Condition: ApiCustomDomain
   ApiCustomDomain:
     Type: AWS::ApiGateway::DomainName
     Properties:
-      DomainName: pdx-serverless.dev
+      DomainName: api.pdx-serverless.dev
       EndpointConfiguration:
         Types:
           - REGIONAL
@@ -83,4 +83,4 @@ Conditions:
   ApiCustomDomain: !Not
     - !Equals
       - 'false'
-      - pdx-serverless.dev
+      - api.pdx-serverless.dev
