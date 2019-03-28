@@ -69,6 +69,13 @@ Resources:
       RestApiId: !Ref Api
       Stage: !Ref EnvironmentAPIGatewayStageName
     Condition: ApiCustomDomain
+  BasePathMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      BasePath: basepath
+      DomainName: !Ref ApiCustomDomain
+      RestApiId: !Ref Api
+      Stage: !GetAtt Api.Stage
 Parameters:
   StackTagName:
     Type: String
