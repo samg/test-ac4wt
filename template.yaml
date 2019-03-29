@@ -65,7 +65,7 @@ Resources:
   ApiCustomDomainMapping:
     Type: AWS::ApiGateway::BasePathMapping
     Properties:
-      BasePath: basepath
+      BasePath: product
       DomainName: !Ref ApiCustomDomain
       RestApiId: !Ref Api
       Stage: !Ref EnvironmentAPIGatewayStageName
